@@ -12,10 +12,39 @@ AVIATIONSTACK_BASE_URL = "http://api.aviationstack.com/v1/flights"
 
 
 def load_config() -> Dict[str, Any]:
-    """Load settings from config.json"""
+    """
+    Load config from environment variables (for GitHub Actions)
+    or from config.json (for local runs).
+    """
 
+    # 1. Try environment variables first (GitHub Actions / CI)
+    env_api_key = os.getenv("AVIATIONSTACK_API_KEY")
+    env_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    env_chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    env_flights = os.getenv("FLIGHT_CODES")
+
+    if env_api_key and env_bot_token and env_chat_id and env_flights:
+        flights_list = [
+            f.strip() for f in env_flights.split(",") if f.strip()
+        ]
+        if not flights_list:
+            print("FLIGHT_CODES env var is set but empty.", file=sys.stderr)
+            sys.exit(1)
+
+        return {
+            "aviationstack_api_key": env_api_key,
+            "telegram_bot_token": env_bot_token,
+            "telegram_chat_id": env_chat_id,
+            "flights": flights_list,
+        }
+
+    # 2. Fallback: local config.json (for local development)
     if not os.path.exists(CONFIG_PATH):
-        print(f"config.json not found at {CONFIG_PATH}", file=sys.stderr)
+        print(
+            "No environment variables set and config.json not found. "
+            "Set env vars or create config.json.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
