@@ -1,0 +1,6 @@
+{
+  "aviationstack_api_key": "aviationstack_api_key",
+  "telegram_bot_token": "bot-token",
+  "telegram_chat_id": "chat-id",
+  "flights": ["6E6385"]
+}
